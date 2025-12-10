@@ -1,5 +1,6 @@
 package com.pluralsight.northwind.controllers;
 
+import com.pluralsight.northwind.data.ProductDao;
 import com.pluralsight.northwind.models.Product;
 import org.springframework.web.bind.annotation.*;
 
@@ -7,28 +8,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@RequestMapping("/products")
 public class ProductsController {
 
-    // временный список вместо базы
-    private List<Product> getSampleProducts() {
-        List<Product> products = new ArrayList<>();
-        products.add(new Product(1, "Chai", 1, 18.0));
-        products.add(new Product(2, "Chang", 1, 19.0));
-        products.add(new Product(3, "Aniseed Syrup", 2, 10.0));
-        products.add(new Product(4, "Chef Anton's Cajun Seasoning", 2, 22.0));
-        return products;
+    private final ProductDao productDao;
+
+    public ProductsController(ProductDao productDao) {
+        this.productDao = productDao;
     }
 
-    // ЕДИНСТВЕННЫЙ GET /products (base + bonus)
-    @GetMapping("/products")
+    @GetMapping
     public List<Product> getProducts(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Integer categoryId,
             @RequestParam(required = false) Double maxPrice
     ) {
+        List<Product> products = productDao.getAll();
         List<Product> result = new ArrayList<>();
 
-        for (Product p : getSampleProducts()) {
+        for (Product p : products) {
             boolean matches = true;
 
             if (name != null && !p.getProductName().toLowerCase().contains(name.toLowerCase())) {
@@ -51,14 +49,8 @@ public class ProductsController {
         return result;
     }
 
-    // GET /products/{id} → конкретный продукт
-    @GetMapping("/products/{id}")
+    @GetMapping("/{id}")
     public Product getProductById(@PathVariable int id) {
-        for (Product p : getSampleProducts()) {
-            if (p.getProductId() == id) {
-                return p;
-            }
-        }
-        return null;
+        return productDao.getById(id);
     }
 }
