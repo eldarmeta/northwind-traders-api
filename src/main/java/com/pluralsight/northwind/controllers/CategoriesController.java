@@ -17,10 +17,22 @@ public class CategoriesController {
         return categories;
     }
 
-    // GET /categories → все категории
     @GetMapping("/categories")
-    public List<Category> getCategories() {
-        return getSampleCategories();
+    public List<Category> getCategories(@RequestParam(required = false) String name) {
+
+        if (name == null) {
+            return getSampleCategories();
+        }
+
+        List<Category> result = new ArrayList<>();
+
+        for (Category c : getSampleCategories()) {
+            if (c.getCategoryName().toLowerCase().contains(name.toLowerCase())) {
+                result.add(c);
+            }
+        }
+
+        return result;
     }
 
     // GET /categories/{id} → конкретная категория
