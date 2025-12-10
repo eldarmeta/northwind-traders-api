@@ -19,10 +19,36 @@ public class ProductsController {
         return products;
     }
 
-    // GET /products → все продукты
+    // ЕДИНСТВЕННЫЙ GET /products (base + bonus)
     @GetMapping("/products")
-    public List<Product> getProducts() {
-        return getSampleProducts();
+    public List<Product> getProducts(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Integer categoryId,
+            @RequestParam(required = false) Double maxPrice
+    ) {
+        List<Product> result = new ArrayList<>();
+
+        for (Product p : getSampleProducts()) {
+            boolean matches = true;
+
+            if (name != null && !p.getProductName().toLowerCase().contains(name.toLowerCase())) {
+                matches = false;
+            }
+
+            if (categoryId != null && p.getCategoryId() != categoryId) {
+                matches = false;
+            }
+
+            if (maxPrice != null && p.getUnitPrice() > maxPrice) {
+                matches = false;
+            }
+
+            if (matches) {
+                result.add(p);
+            }
+        }
+
+        return result;
     }
 
     // GET /products/{id} → конкретный продукт
@@ -33,6 +59,6 @@ public class ProductsController {
                 return p;
             }
         }
-        return null; // позже можно будет сделать 404
+        return null;
     }
 }
